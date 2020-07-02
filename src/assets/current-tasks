@@ -1,0 +1,8 @@
+Firestore:
+1) Registration => 
+    users -> user.id -> collections (information, companies)
+    information -> name, surname, role
+    companies -> company.id -> name, domen, + collection(folders)
+
+    folders -> folder.id -> title, body, img
+
