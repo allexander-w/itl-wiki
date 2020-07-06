@@ -22,7 +22,7 @@
 export default {
     data: ()=> ({
         menu: [
-            {icon: 'far fa-file-alt', title: 'Статью', route: '#'},
+            {icon: 'far fa-file-alt', title: 'Статью', route: '/account/add-document'},
             {icon: 'far fa-folder', title: 'Раздел', route: '#'}
         ]
     })

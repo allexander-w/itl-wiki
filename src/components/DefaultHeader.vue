@@ -5,7 +5,7 @@
         
         <div class="def-header-container">
             <i 
-                v-for ='(item,index) in homeBar'
+                v-for ='(item,index) in isInCompany'
                 :key = 'index'
                 class="nav-bar-button"
                 :class="'fas fa-'+item.name"
@@ -25,12 +25,16 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
     data: ()=> ({
         homeBar: [
             {id: 1, name: 'home', component: 'SBHome'},
             {id: 2, name: 'plus', component: 'SBAdd'},
             {id: 3, name: 'search', component: 'SBSearch'}
+        ],
+        homeBarWithoutCompany: [
+            {id: 1, name: 'home', component: 'SBHome'}
         ],
         setBar: [
             {id: 1, name: 'fas fa-cog', component: 'SBSettings'},
@@ -40,6 +44,16 @@ export default {
         ],
         isActive: false
     }),
+    computed: {
+        ...mapGetters(['STATUS']),
+        isInCompany(){
+            this.$store.dispatch('FETCH_STATE_OF_CURRENT_COMID')
+
+            if (this.STATUS === 'null') {
+                return this.homeBarWithoutCompany
+            } else {return this.homeBar}
+        },
+    },
     methods: {
         sidebarChange({component}) {
             this.$store.commit('CHANGE_COMPONENT', component)

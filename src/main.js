@@ -4,13 +4,14 @@ import './registerServiceWorker'
 import router from './router'
 import store from './store'
 import Vuelidate from 'vuelidate'
+import { VueEditor } from 'vue2-editor'
 
 import 'firebase/auth'
 import 'firebase/database'
 import 'firebase/firestore'
 
-import firebase from 'firebase/app'
 
+import firebase from 'firebase/app'
 
 Vue.use(Vuelidate)
 

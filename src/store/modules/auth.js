@@ -57,7 +57,6 @@ export default {
                 let userInfo = {}
                 if (doc.exists) {
                     userInfo = doc.data()
-                    
                     commit('PUT_USER_INFO', userInfo)
                 }
 

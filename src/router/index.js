@@ -85,6 +85,24 @@ Vue.use(VueRouter)
           isAuth: true
         },
         component: () => import('../views/Activity.vue')
+      },
+      {
+        path: '/account/works/:id',
+        name: 'InDocument',
+        meta: {
+          layout: 'DefaultLayout',
+          isAuth: true
+        },
+        component: () => import('../views/InDocument.vue')
+      },
+      {
+        path: '/account/add-document',
+        name: 'AddDocument',
+        meta: {
+          layout: 'EditLayout',
+          isAuth: true
+        },
+        component: () => import('../views/AddDocument.vue')
       }
     ]
   })

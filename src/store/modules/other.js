@@ -2,11 +2,15 @@ import firebase from 'firebase/app'
 export default {
     state: {
         needComponent: 'SBHome',
-        companies: []
+        companies: [],
+        status: ''
     },
     mutations: {
         CHANGE_COMPONENT(state, data) {
             state.needComponent = data
+        },
+        UPDATE_STATUS (state, status) {
+            state.status = status
         }
     },
     getters: {
@@ -15,6 +19,9 @@ export default {
         },
         COMPANY_INFO(state){
             return state.companies
+        },
+        STATUS(state) {
+            return state.status
         }
     },
     actions: {
@@ -46,6 +53,14 @@ export default {
                         console.log(doc.id);
                     })
                 })
+        },
+        async FETCH_STATE_OF_CURRENT_COMID({dispatch, commit}){
+            const uid = await dispatch('GET_ID')
+                var docRef = await firebase.firestore().collection("users").doc(`${uid}`)
+                const doc = await docRef.get()
+                if (doc.exists) {
+                    commit ('UPDATE_STATUS',doc.data().currentId) 
+                }
         }
     }
 }
