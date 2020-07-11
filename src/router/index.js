@@ -87,13 +87,22 @@ Vue.use(VueRouter)
         component: () => import('../views/Activity.vue')
       },
       {
-        path: '/account/works/:id',
+        path: '/account/works/:secid/:docid',
         name: 'InDocument',
         meta: {
           layout: 'DefaultLayout',
           isAuth: true
         },
         component: () => import('../views/InDocument.vue')
+      },
+      {
+        path: '/account/works/:secid',
+        name: 'InSection',
+        meta: {
+          layout: 'DefaultLayout',
+          isAuth: true,
+        },
+        component: () => import('../views/InSection.vue')
       },
       {
         path: '/account/add-document',

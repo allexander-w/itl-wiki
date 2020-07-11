@@ -26,6 +26,24 @@
             </div>
         </div>
         <div class="doc-main-content">
+            <div class="dropdown-section" v-click-outside='chooseHide'>
+                <p class="choose-title" @click = 'choose = true'>{{section === '' ? 'Выбор раздела' : section}}</p>
+                <div class="sec-wrapper" v-show='choose'>
+                    <div class="dropdown-section-wrapper section-position" >
+                        <input type="text" v-model="section" class="choose-section modal-doc-input" placeholder="Название раздела">
+                    </div>
+                    <div class="choose-panel">
+                        <div class="choose-item"
+                            v-for = '(work, index) in ALL_WORKS'
+                            :key = 'index'
+                            @click ='addSection(work.title)'
+                        >
+                            <p>{{work.title}}</p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
             <input type="text" v-model="title" class="header-input" placeholder="Заголовок статьи">
             <vue-editor v-model="content" class='doc-editor'></vue-editor>
         </div>
@@ -52,7 +70,9 @@ export default {
         authorSurname: '',
         access: false,
         tags: false,
-        load: false
+        load: false,
+        choose: false,
+        section: ''
     }),
     validations: {
         content: {required},
@@ -62,7 +82,10 @@ export default {
         VueEditor, Loader
     },
     computed: {
-        ...mapGetters(['GET_CURRENT_USER_INFO'])
+        ...mapGetters(['GET_CURRENT_USER_INFO','ALL_WORKS'])
+    },
+    async mounted(){
+        await this.$store.dispatch('WORKS')
     },
     directives: {
      ClickOutside
@@ -111,7 +134,8 @@ export default {
                 title: this.title,
                 content: this.content,
                 date: this.nowDate,
-                author
+                author,
+                section: this.section
             }
             
             try {
@@ -123,15 +147,27 @@ export default {
         cancel(){
             alert ('Изменения не сохранятся, вы точно хотите выйти?')
             this.$router.push('/account/works')
+        },
+        addSection(secName) {
+            this.section = secName
+            this.choose = false
+        },
+        chooseHide(){
+            this.choose = false
         }
     }
 }
 </script>
 
 <style lang="scss">
-.doc-tags {
-    position: relative;
+.choose-title {
+    font-size: 13px;
+    color: #999999;
     cursor: pointer;
+    padding-left: 10px;
+    &:hover {
+        color: #0b55bb;
+    }
 }
 .modal-doc {
     display: flex;
@@ -255,5 +291,54 @@ export default {
     height: 100px;
     align-items: center;
     margin: 0 35px;
+}
+.dropdown-section {
+    position: relative;
+}
+.dropdown-section-wrapper {
+    display: flex;
+    align-items: center;
+    width: 380px;
+    min-height: 70px;
+    box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.08);
+    background-color: #fff;
+    z-index: 99;
+}
+.section-position{
+    
+    position: absolute;
+    top: 30px;
+}
+.choose-panel {
+    padding: 20px;
+    position: absolute;
+    top: 100px;
+    max-height: 400px;
+    overflow-y: auto;
+    width: 380px;
+    min-height: 70px;
+    box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.08);
+    background-color: #fff;
+    z-index: 99;
+}
+.choose-item {
+    width: 340px;
+    height: 35px;
+    display: flex;
+    border-radius: 2px;
+    align-items: center;
+    cursor: pointer; 
+    transition: .5s;
+
+    &:hover {
+        background-color: rgb(91, 176, 255);
+    }
+    p {
+        padding-left: 10px;
+    }
+}
+.doc-tags {
+    position: relative;
+    cursor: pointer;
 }
 </style>

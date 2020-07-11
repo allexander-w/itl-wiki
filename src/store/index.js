@@ -7,8 +7,10 @@ import comment from '../store/modules/comment'
 
 Vue.use(Vuex)
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   modules: {
     auth,other,account,comment
   }
 })
+
+export default store

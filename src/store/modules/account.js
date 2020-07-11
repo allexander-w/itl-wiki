@@ -6,25 +6,47 @@ export default {
         currentDocument: {}
     },
     actions: {
-        async CREATE_DOCUMENT ({commit, state, dispatch}, {title, content, date,author}) {
+        async CREATE_DOCUMENT ({commit, state, dispatch}, {title, content, date,author, section}) {
             try {
                 const uid = await dispatch('GET_ID')
                 const cId = await dispatch('GET_CURRENT_ID')
+                let sectionId 
 
                 firebase.firestore().collection('users').doc(`${uid}`)
-                        .collection('companies').doc(`${cId}`).collection('works').add({ }).then (docRef => {
+                        .collection('companies').doc(`${cId}`)
+                        .collection('works').doc(`${section}`)
+                        .collection('documents')
+                        .add({ }).then (docRef => {
                     const docId = docRef.id
                     firebase.firestore().collection('users').doc(`${uid}`)
-                        .collection('companies').doc(`${cId}`).collection('works').doc(`${docId}`).set({
+                        .collection('companies').doc(`${cId}`).collection('works').doc(`${section}`)
+                        .collection('documents').doc(`${docId}`).set({
                         title,
                         content,
                         date,
                         id: docId,
-                        author
+                        author,
+                        section
                     })
-                }). then(()=> {
+                }).then( async ()=> {
+                    sectionId = await dispatch('GET_WORKS_LENGTH')
+                }).then(async()=> {
+                    
+                    const hasSec = await dispatch('HAS_SECTION', section)
+                    
+                    if (hasSec) {
+                        firebase.firestore().collection('users').doc(`${uid}`)
+                        .collection('companies').doc(`${cId}`).collection('works').doc(`${section}`)
+                        .set({
+                            title: section,
+                            id: sectionId
+                        })
+                    }
+                }).then(()=> {
                     dispatch('WORKS')
                 })
+
+                
             } catch (e) {throw e}
 
 
@@ -39,27 +61,46 @@ export default {
 
             dispatch('FETCH_STATE_OF_CURRENT_COMID')
         },
-        async WORKS({dispatch, state, commit}){
+        async WORKS({dispatch, state, commit}, section){
             const uid = await dispatch('GET_ID')
             const cId = await dispatch('GET_CURRENT_ID')
+
+            commit('CLEAN_WORKS')
             
-            commit ('CLEAN_WORKS')
-            firebase.firestore().collection('users').doc(`${uid}`).collection('companies').doc(`${cId}`).collection('works').get().then(function(querySnapshot) {
+            firebase.firestore().collection('users').doc(`${uid}`).collection('companies').doc(`${cId}`)
+            .collection('works').get().then(function(querySnapshot) {
                 querySnapshot.forEach(function(doc) {
                     commit('PUT_WORKS', doc.data())
                 })
             })
         },
-        async IN_DOCUMENT({dispatch, state, commit}, docId){
+        async IN_SECTION({dispatch, state, commit}, section){
             const uid = await dispatch('GET_ID')
             const cId = await dispatch('GET_CURRENT_ID')
-            state.works = []
-            const currentDoc = firebase.firestore().collection('users').doc(`${uid}`).collection('companies').doc(`${cId}`).collection('works').doc(`${docId}`)
-            const doc = await currentDoc.get()
+            
+            const documData =  await firebase.firestore().collection('users').doc(`${uid}`).collection('companies').doc(`${cId}`)
+            .collection('works').doc(`${section}`).collection('documents')
+            .get()
+            let arr = []
+            documData.forEach(doc => {
+                arr.push(doc.data())
+            })
 
-            if (doc.exists){
-                commit ('PUSH_DOC_OBJECT', doc.data())
-            }
+            return arr
+        },
+        async IN_DOCUMENT({dispatch, state, commit}, {documentId, section}){
+            const uid = await dispatch('GET_ID')
+            const cId = await dispatch('GET_CURRENT_ID')
+            //state.works = []
+            const currentDoc = await firebase.firestore().collection('users').doc(`${uid}`).collection('companies').doc(`${cId}`).collection('works').doc(`${section}`)
+            .collection('documents').doc(`${documentId}`).get()
+            
+            return currentDoc.data()
+
+           /* if (doc.exists){
+                //commit ('PUSH_DOC_OBJECT', doc.data())
+                console.log(doc);
+            }*/
         },
         async GET_CURRENT_ID ({dispatch, commit, state}) {
             const uid = await dispatch('GET_ID')

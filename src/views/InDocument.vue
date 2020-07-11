@@ -10,50 +10,54 @@
             </div>
         </div>
         <h3 class="cd-title">
-            {{CURRENT_DOCUMENT.title}}
+            {{inDoc.title}}
         </h3>
         <div class="cd-info">
-            <p class="cd-author">Автор: <span>{{CURRENT_DOCUMENT.author}}</span></p>
-            <p class="cd-date">Обновлено: <span>{{CURRENT_DOCUMENT.date}}</span></p>
+            <p class="cd-author">Автор: <span>{{inDoc.author}}</span></p>
+            <p class="cd-date">Обновлено: <span>{{inDoc.date}}</span></p>
         </div>
         
-        <div class="content-in-doc" v-html="CURRENT_DOCUMENT.content"></div>
+        <div class="content-in-doc" v-html="inDoc.content"></div>
 
         <div class="cd-like">
             <i class="cd-like-icon fas fa-thumbs-up"></i> <span>Нравится</span>
         </div>
 
-        <Comments :documentId = 'CURRENT_DOCUMENT.id' />
+        <Comments :documentId = 'inDoc.id' />
 
         <Loader v-show='load' />
     </div>
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import Loader from '@/components/Loader'
 import Comments from '@/components/Comments'
 
 export default {
     data: ()=> ({
-        load: false
+        load: false,
+        inDoc: {}
     }),
-    computed: {
-        ...mapGetters (['CURRENT_DOCUMENT'])
-    },
     components: {
         Breadcrumbs,Loader,Comments
     },
     async mounted(){
-        const id = this.$router.currentRoute.params.id
+        const id = this.$router.currentRoute.params.docid
+        const section = this.$router.currentRoute.query.sectionName
+
+        const data = {
+            documentId: id,
+            section
+        }
+
+        
         this.load = true
         try {
-            await this.$store.dispatch('IN_DOCUMENT', id)
-            await this.$store.dispatch('GET_COMMENTS', id)
+            this.inDoc = await this.$store.dispatch('IN_DOCUMENT', data)
+            await this.$store.dispatch('GET_COMMENTS', data)
             this.load = false
-            
-        } catch (e) {this.load = false}
+        } catch (e) {this.load = false} 
     }
 }
 </script>

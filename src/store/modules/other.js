@@ -3,7 +3,7 @@ export default {
     state: {
         needComponent: 'SBHome',
         companies: [],
-        status: ''
+        status: '',
     },
     mutations: {
         CHANGE_COMPONENT(state, data) {
@@ -33,16 +33,34 @@ export default {
                     name,
                     surname
                 })
-                // CHANGE!
-               /* await firebase.database().ref(`users/${uid}/information`).update({
-                    name,
-                    surname
-               })*/
-               // CHANGE!
                 const user = await firebase.auth().currentUser
                 user.updateEmail(email)
 
             } catch (e){throw e}
+        },
+        async GET_WORKS_LENGTH({dispatch,commit}) {
+            const uid = await dispatch('GET_ID')
+            const cId = await dispatch('GET_CURRENT_ID')
+            const docum = await firebase.firestore().collection('users').doc(`${uid}`)
+                    .collection('companies').doc(`${cId}`).collection('works')
+                    .get()
+            const arr = []
+            docum.forEach(resp => {
+                arr.push(resp.data())
+            })
+            return arr.length
+        },
+        async HAS_SECTION ({dispatch, commit}, section){
+            const uid = await dispatch('GET_ID')
+            const cId = await dispatch('GET_CURRENT_ID')
+
+            const aboutId = await firebase.firestore().collection('users').doc(`${uid}`)
+                        .collection('companies').doc(`${cId}`).collection('works').doc(`${section}`)
+                        .get()
+            
+            if(aboutId.data() === undefined) {
+               return true
+            } else { return false }
         },
         async ADD_COMPANY ({state,dispatch,commit}){
                 const uid = await dispatch('GET_ID')
@@ -53,6 +71,16 @@ export default {
                         console.log(doc.id);
                     })
                 })
+        },
+        async GET_SECTION_ID ({dispatch, commit}, section) {
+            const uid = await dispatch('GET_ID')
+            const cId = await dispatch('GET_CURRENT_ID')
+
+            const secId = await firebase.firestore().collection('users').doc(`${uid}`)
+                        .collection('companies').doc(`${cId}`).collection('works').doc(`${section}`)
+                        .get()
+            
+            return secId.data().id
         },
         async FETCH_STATE_OF_CURRENT_COMID({dispatch, commit}){
             const uid = await dispatch('GET_ID')

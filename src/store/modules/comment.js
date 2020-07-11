@@ -18,20 +18,21 @@ export default {
         }
     },
     actions: {
-        async ADD_COMMENT ({dispatch, state, commit}, {initials, date, author, content, documentId}) {
+        async ADD_COMMENT ({dispatch, state, commit}, {initials, date, author, content, documentId, section}) {
             
            const uid = await dispatch('GET_ID')
            const cId = await dispatch('GET_CURRENT_ID')
            let docId
            firebase.firestore().collection('users').doc(`${uid}`)
-                   .collection('companies').doc(`${cId}`).collection('works').doc(`${documentId}`)
-                   .collection('comments')
+                   .collection('companies').doc(`${cId}`).collection('works').doc(`${section}`)
+                   .collection('documents').doc(`${documentId}`).collection('comments')
                    .add({ }).then (docRef => {
                docId = docRef.id
                firebase.firestore().collection('users').doc(`${uid}`)
                    .collection('companies').doc(`${cId}`).collection('works')
-                   .doc(`${documentId}`).collection('comments')
-                   .doc(`${docId}`).set({
+                   .doc(`${section}`)
+                   .collection('documents').doc(`${documentId}`)
+                   .collection('comments').doc(`${docId}`).set({
                         initials,
                         id: docId,
                         date, 
@@ -39,17 +40,22 @@ export default {
                         content
                     })
                 }).then(()=> {
-                    dispatch('GET_COMMENTS', documentId)
+                    const dataForGet = {
+                        documentId,
+                        section
+                    }
+                    dispatch('GET_COMMENTS', dataForGet)
                 })
         },
-        async GET_COMMENTS({dispatch,commit,state}, id) {
+        async GET_COMMENTS({dispatch,commit,state}, {documentId,section}) {
             const uid = await dispatch('GET_ID')
             const cId = await dispatch('GET_CURRENT_ID')
 
             commit('CLEAR_COMS')
             firebase.firestore().collection('users').doc(`${uid}`)
             .collection('companies').doc(`${cId}`)
-            .collection('works').doc(`${id}`)
+            .collection('works').doc(`${section}`)
+            .collection('documents').doc(`${documentId}`)
             .collection('comments')
             .get().then(function(querySnapshot) {
                 querySnapshot.forEach(function(doc) {
@@ -57,17 +63,23 @@ export default {
                 })
             })
         },
-        async DELETE_COMMENT({dispatch,commit,state}, {idDocument, idComment}){
+        async DELETE_COMMENT({dispatch,commit,state}, {idDocument, idComment, section}){
             const uid = await dispatch('GET_ID')
             const cId = await dispatch('GET_CURRENT_ID')
 
             commit('CLEAR_COMS')
             firebase.firestore().collection('users').doc(`${uid}`)
             .collection('companies').doc(`${cId}`)
-            .collection('works').doc(`${idDocument}`)
+            .collection('works').doc(`${section}`)
+            .collection('documents').doc(`${idDocument}`)
             .collection('comments').doc(`${idComment}`)
             .delete().then(()=> {
-                dispatch('GET_COMMENTS', idDocument)
+
+                const dataForGet = {
+                        documentId: idDocument,
+                        section
+                    }
+                dispatch('GET_COMMENTS', dataForGet)
             })
         }
     }

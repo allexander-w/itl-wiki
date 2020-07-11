@@ -8,15 +8,11 @@
                 class="work-item"
                 v-for = '(work, ind) in ALL_WORKS'
                 :key = 'ind'
-                @click="getWorkId(work.id)"
+                @click="getWorkId(work.title)"
             >
-                <i class="far fa-file-alt work-doc-icon"></i>
+                <i class="far fa-folder work-doc-icon"></i>
                 <div class="work-info-content">
                     <p class="work-title">{{work.title}}</p>
-                    <div class="information-about-work">
-                        <p class="work-author work-info-p">Автор: <span class="work-author-value work-info-span">{{work.author}}</span></p>
-                        <p class="work-added work-info-p">Добавлено: <span class="work-info-span">{{work.date}}</span></p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -50,12 +46,16 @@ export default {
     methods: {
         async getWorkId(id){
             try {
-                await this.$store.dispatch('IN_DOCUMENT', id)
-                this.$router.push(`/account/works/${id}`)
+                const secID = await this.$store.dispatch('GET_SECTION_ID', id)
+                this.$router.push({ 
+                    path: `/account/works/${secID}`, 
+                    query: { id }
+                })
             } catch (e) {}
         }
     }
 }
+
 </script>
 
 <style lang="scss">
@@ -70,6 +70,7 @@ export default {
 .work-item {
     cursor: pointer;
     display: flex;
+    align-items: center;
     padding: 10px 20px;
     margin-left: -20px;
     transition: .3s;

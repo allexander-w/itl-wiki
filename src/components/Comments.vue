@@ -66,9 +66,11 @@ export default {
     },
     methods: {
         async deleteComment(doc) {
+            const section = this.$router.currentRoute.query.sectionName
             const data = {
                 idDocument: this.documentId,
-                idComment: doc
+                idComment: doc,
+                section
             }
 
             this.load = true
@@ -101,6 +103,7 @@ export default {
                 const inS = this.GET_CURRENT_USER_INFO.surname.slice(0,1)
                 this.initials = `${inN}${inS}`
 
+                const section = this.$router.currentRoute.query.sectionName
                 this.getDate()
 
                 const commentData = {
@@ -108,9 +111,9 @@ export default {
                     initials: this.initials,
                     date: this.nowDate,
                     content: this.content,
-                    documentId: this.documentId
+                    documentId: this.documentId,
+                    section
                 }
-                
                 
                 await this.$store.dispatch('ADD_COMMENT', commentData)
                 this.content = ''

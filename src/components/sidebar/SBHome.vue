@@ -15,6 +15,24 @@
              ></i> <span class="sb-home-profile">{{menuItem.title}}</span>
             </div>
         </router-link>
+
+        <div class="sb-home-documents" v-if='ALL_WORKS.length'>
+        <p class="main-title sb-marks-title">
+            Мои разделы
+        </p>
+
+        <div 
+            class="doc-item"
+            v-for='(work,index) in ALL_WORKS'
+            :key = '`work${index}`'
+            @click="inSection(work.title)"
+        >
+            <div class="doc-item-wrapper active-link">
+             <i class="sb-home-doc-icon far fa-folder"
+             ></i> <span class="sb-home-doc-profile">{{work.title}}</span>
+            </div>
+        </div>
+        </div>
     </div> 
 </template>
 
@@ -26,32 +44,31 @@ export default {
             {icon: 'far fa-compass', title: 'Активность', route: '/account/activity'},
             {icon: 'far fa-file-alt', title: 'Ваши работы', route: '/account/works'},
             {icon: 'far fa-bookmark', title: 'Закладки', route: '/account/bookmarks'}
-        ],
-        works: []
+        ]
     }),
     computed: {
         ...mapGetters(['ALL_WORKS'])
+    },
+    async mounted(){
+        this.load = true
+        await this.$store.dispatch('WORKS')
+        this.load = false
+    },
+    methods: {
+        async inSection(id) {
+            const secID = await this.$store.dispatch('GET_SECTION_ID', id)
+            
+            this.$router.push({ 
+                path: `/account/works/${secID}`, 
+                query: { id }
+            })
+        }
     }
 }
 
 
 /*
-<div class="sb-home-documents" v-if='ALL_WORKS.length'>
-        <p class="main-title sb-marks-title">
-            Статьи
-        </p>
 
-        <div 
-            class="doc-item"
-            v-for='(work,index) in works'
-            :key = '`work${index}`'
-        >
-            <div class="doc-item-wrapper active-link">
-             <i class="sb-home-doc-icon far fa-file-alt"
-             ></i> <span class="sb-home-doc-profile">{{work.title}}</span>
-            </div>
-        </div>
-    </div>
 */
 </script>
 
